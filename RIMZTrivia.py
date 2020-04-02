@@ -9,7 +9,7 @@ class trivia(RIMZDB):
     def __init__(self, dbFile):
         super(trivia, self).__init__(dbFile)
         self.flag = False
-        self.itemNumber = 0
+        self.itemNumber = 1
         
     def getItems(self):
         self.questionItems = {}
@@ -22,11 +22,18 @@ class trivia(RIMZDB):
                     temp.append(choice[2])
                     self.questionItems[question[0]] = (question[1], temp, question[2])
 
+    def questionItemLength(self):
+        return len(self.questionItems)
+
+    def removeQuestionItem(self):
+        del self.questionItems[self.qID]
+        
     def resetNumber(self):
-        self.itemNumber = 0
+        self.itemNumber = 1
 
     def getQuestionItem(self):
-        self.qID = choice(list(self.questionItems.keys()))
+        questionItems = list(self.questionItems.keys())
+        self.qID = choice(questionItems)
 
     def getQuestionDesc(self):
         return self.questionItems[self.qID][0]
