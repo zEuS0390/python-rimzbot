@@ -82,7 +82,7 @@ class RIMZBot(Client):
             trivia.flag = True
             trivia.getItems()
             trivia.getQuestionItem()
-            questionDesc = trivia.getQuestionDesc()
+            questionDesc = "{0}. ".format(trivia.itemNumber) + trivia.getQuestionDesc()
             self.sendMessage(questionDesc)
             choices = trivia.getChoices()
             string = ""
@@ -103,6 +103,35 @@ class RIMZBot(Client):
             self.sendMessage("{0}'s answer is correct!".format(messenger))
         else:
             self.sendMessage("{0}'s answer is wrong! The correct answer is {1}.".format(messenger, trivia.getCorrectAnswer()))
+        trivia.itemNumber += 1
+        trivia.removeQuestionItem()
+
+        if trivia.questionItemLength() > 0:
+            trivia.getQuestionItem()
+            questionDesc = "{0}. ".format(trivia.itemNumber) + trivia.getQuestionDesc()
+            self.sendMessage(questionDesc)
+            choices = trivia.getChoices()
+            string = ""
+            for index in range(0, len(choices)):
+                key = list(choices.keys())[index]
+                keyDesc = choices[key]
+                string += "{0}. {1}".format(key, keyDesc)
+                if index != len(choices)-1:
+                    string+= "\n"
+            self.sendMessage(string)
+        else:
+            trivia.flag = False
+            trivia.resetNumber()
+            self.sendMessage("Trivia game has ended. Type !trivia to play again.")
+
+    def quitTrivia(self):
+        messenger = self.verifyName()
+        if trivia.flag == True:
+            trivia.flag = False
+            trivia.resetNumber()
+            self.sendMessage("{0} cancelled the trivia game".format(messenger))
+        else:
+            self.sendMessage("Trivia game has not been started yet.")
 
     def displayCommands(self):
         text = "Commands:\n"
@@ -134,6 +163,8 @@ class RIMZBot(Client):
                 self.startTrivia()
             elif self.validateMessage("!answer", message):
                 self.answerTrivia(message)
+            elif "!quittrivia" == message.text:
+                self.quitTrivia()
             elif "!commands" == message.text:
                 self.displayCommands()
             elif "!exit" == message.text:
