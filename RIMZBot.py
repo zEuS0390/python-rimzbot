@@ -3,6 +3,7 @@ from fbchat.models import Message, ThreadType
 from getpass import getpass
 from itertools import product
 import sympy
+from RIMZTrivia import trivia as tr
 
 """
         CREATED BY: ZEUS JAMES S. BALTAZAR
@@ -11,8 +12,10 @@ import sympy
 """
 
 masters = {}
-THREADID = "3241873795826525"  # RIMZ Thread (FB)
-THREADTYPE = ThreadType.GROUP
+##THREADID = "3241873795826525"  # RIMZ Thread (FB)
+##THREADTYPE = ThreadType.GROUP
+THREADID = "100037949887123"
+THREADTYPE = ThreadType.USER
 commands = ["!commands",
             "!math <expression>",
             "!setname <name>",
@@ -21,6 +24,8 @@ commands = ["!commands",
             "!answer <answer>",
             "!quittrivia",
             "!exit"]
+
+trivia = tr("RIMZDB.db")
 
 class RIMZBot(Client):
 
@@ -71,6 +76,34 @@ class RIMZBot(Client):
         else:
             self.sendMessage("You don't have master name")
 
+    def startTrivia(self):
+        if trivia.flag == False:
+            self.sendMessage("Let's get started!")
+            trivia.flag = True
+            trivia.getItems()
+            trivia.getQuestionItem()
+            questionDesc = trivia.getQuestionDesc()
+            self.sendMessage(questionDesc)
+            choices = trivia.getChoices()
+            string = ""
+            for index in range(0, len(choices)):
+                key = list(choices.keys())[index]
+                keyDesc = choices[key]
+                string += "{0}. {1}".format(key, keyDesc)
+                if index != len(choices)-1:
+                    string+= "\n"
+            self.sendMessage(string)
+        else:
+            self.sendMessage("Trivia game has already been started.")
+
+    def answerTrivia(self, message):
+        answer = self.fetchMessage(message)
+        messenger = self.verifyName()
+        if trivia.checkAnswer(answer):
+            self.sendMessage("{0}'s answer is correct!".format(messenger))
+        else:
+            self.sendMessage("{0}'s answer is wrong! The correct answer is {1}.".format(messenger, trivia.getCorrectAnswer()))
+
     def displayCommands(self):
         text = "Commands:\n"
         for index in range(0, len(commands)):
@@ -97,6 +130,10 @@ class RIMZBot(Client):
                 self.setName(message)
             elif "!name" == message.text:
                 self.masterName(message)
+            elif "!trivia" == message.text:
+                self.startTrivia()
+            elif self.validateMessage("!answer", message):
+                self.answerTrivia(message)
             elif "!commands" == message.text:
                 self.displayCommands()
             elif "!exit" == message.text:
