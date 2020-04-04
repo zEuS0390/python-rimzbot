@@ -2,8 +2,13 @@ from fbchat import Client
 from fbchat.models import Message, ThreadType
 from getpass import getpass
 from itertools import product
-import sympy
 from RIMZTrivia import trivia as tr
+from RIMZMasters import master as m
+from RIMZWebScraping import getLatestArticles
+from gtts import gTTS
+from vlc import MediaPlayer
+from os import system
+import sympy, winsound, time, threading
 
 """
         CREATED BY: ZEUS JAMES S. BALTAZAR
@@ -12,10 +17,8 @@ from RIMZTrivia import trivia as tr
 """
 
 masters = {}
-##THREADID = "3241873795826525"  # RIMZ Thread (FB)
-##THREADTYPE = ThreadType.GROUP
-THREADID = "100037949887123"
-THREADTYPE = ThreadType.USER
+THREADID = "3241873795826525"
+THREADTYPE = ThreadType.GROUP
 commands = ["!commands",
             "!math <expression>",
             "!setname <name>",
@@ -23,6 +26,8 @@ commands = ["!commands",
             "!trivia",
             "!answer <answer>",
             "!quittrivia",
+            "latestnews",
+            "!speak <message>",
             "!exit"]
 
 trivia = tr("RIMZDB.db")
@@ -141,16 +146,37 @@ class RIMZBot(Client):
                 text += "\n"
         self.sendMessage(text)
 
-    def getCombinations(self, message):
-        string = self.fetchMessage(message)
-        self.sendMessage("\n".join(stringComb.getStringCombinations(string)))
-        
+    def playSpeech(self, message, sendVoiceClip=False):
+        number = 1
+        name = self.fetchUserInfo(self.authorID)[self.authorID].name
+        speech = "Message from {0}. {1}".format(name, message.text)
+        textToSpeech = gTTS(text=speech, lang="en-us")
+        textToSpeech.save("voice{0}.mp3".format(number))
+        mediaPlayer = MediaPlayer("voice{0}.mp3".format(number))
+        for times in range(0, 3):
+            winsound.Beep(1500, 300)
+        mediaPlayer.play()
+        if sendVoiceClip:
+            self.sendLocalVoiceClips("voice{0}.mp3".format(number), thread_id=THREADID, thread_type=THREADTYPE)
+
+    def latestNews(self):
+        latestArticles = getLatestArticles(5)
+        articleTimes = list(latestArticles.keys())
+        message = "Here's the latest news from the ABS-CBN:\n"
+        for index in range(0, len(latestArticles)):
+            articleTime = articleTimes[index]
+            article = latestArticles[articleTime]
+            message += "{0}.) ".format(index+1) + article + " [" + articleTime + "]\n"
+        self.sendMessage(message)
+
     def onMessage(self, author_id, message_object, thread_id, thread_type, **kwargs):
+
+        global voiceLimit, voiceToken
 
         self.authorID = author_id
         message = message_object
         
-        if thread_id == THREADID:
+        if thread_id == THREADID and self.authorID != self.uid:
             if self.validateMessage("!math", message):
                 self.mathExpression(message)
             elif self.validateMessage("!combinations", message):
@@ -165,11 +191,18 @@ class RIMZBot(Client):
                 self.answerTrivia(message)
             elif "!quittrivia" == message.text:
                 self.quitTrivia()
+            elif "!latestnews" == message.text:
+                self.latestNews()
+            elif self.validateMessage("!speak", message):
+                self.playSpeech(message, sendVoiceClip=True)
             elif "!commands" == message.text:
                 self.displayCommands()
             elif "!exit" == message.text:
                 self.sendMessage("RIMZBot is now offline.")
                 self.stopListening()
+                self.logout()
+            else:
+                self.playSpeech(message)
             self.markAsDelivered(THREADID, message.uid)
             self.markAsRead(THREADID)
 
