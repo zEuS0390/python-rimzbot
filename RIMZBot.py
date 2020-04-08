@@ -17,11 +17,12 @@ from threading import Thread
         DATE CREATED: MARCH 31, 2020; WEDNESDAY
         DESCRIPTION: THIS IS A CHAT BOT FOR FACEBOOK MESSENGER
         EXTERNAL PREREQUISITES OF THE PROGRAM:
-        ~ fbchat (pip install fbchat)
-        ~ sympy (pip install sympy)
-        ~ vlc   (pip install python-vlc)
-        ~ gtts  (pip install gTTS)
-        ~ bs4   (pip install bs4)  
+        ~ fbchat    (pip install fbchat)
+        ~ sympy     (pip install sympy)
+        ~ vlc       (pip install python-vlc)
+        ~ gtts      (pip install gTTS)
+        ~ bs4       (pip install bs4)
+        ~ colorama  (pip install colorama)
 """
 
 # Declaration of constants and instances
