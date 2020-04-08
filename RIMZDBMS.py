@@ -1,7 +1,14 @@
 import sqlite3, time
+from colorama import init, Fore, Style
 from os import system
 
-system("color a")
+RED = Fore.RED + Style.BRIGHT
+YELLOW = Fore.YELLOW + Style.BRIGHT
+GREEN = Fore.GREEN + Style.BRIGHT
+CYAN = Fore.CYAN + Style.BRIGHT
+BLUE = Fore.BLUE + Style.BRIGHT
+MAGENTA = Fore.MAGENTA + Style.BRIGHT
+ALL_COLORS = [RED, YELLOW, GREEN, CYAN, BLUE, MAGENTA]
 
 const = 0.1
 
@@ -212,36 +219,40 @@ def showQuestions():
         questionDesc = question[1]
         questionAnswer = question[2]
         choices = db.getChoices(questionID)
-        print("\n\t\tquestionID:", questionID)
+        print(RED, "\n\t\tquestionID:", questionID)
         delay(const)
-        print("\t\tQuestion Description:", questionDesc)
+        print(YELLOW, "\t\tQuestion Description:", questionDesc)
         delay(const)
-        print("\t\tQuestion Answer [INDEX]: ", questionAnswer)
+        print(GREEN, "\t\tQuestion Answer [INDEX]: ", questionAnswer)
         delay(const)
-        print("\n\t\tChoices:")
+        print(CYAN, "\n\t\tChoices:")
         for index in range(0, len(choices)):
             delay(const)
             choiceDesc = choices[index][2]
             choiceID = choices[index][0]
-            print("\t\tINDEX [", index+1, "] [choiceID: ", choiceID, "]: \"", choiceDesc, "\"", sep="")
+            print(MAGENTA, "\t\tINDEX [", index+1, "] [choiceID: ", choiceID, "]: \"", choiceDesc, "\"", sep="")
 
 def deleteChoice():
-    print("\n\t\tWhich choiceID do you want to delete?")
+    print(MAGENTA, "\n\t\tWhich choiceID do you want to delete?")
     showQuestions()
-    choiceID = int(input("\n\t\tDelete choice (by choiceID) [Type 0 to cancel]: "))
+    print(RED)
+    choiceID = int(input("\t\tDelete choice (by choiceID) [Type 0 to cancel]: "))
     if verifyCancel(choiceID) == 0: return
     db.deleteChoice(1, choiceID)
 
 def deleteQuestion():
-   print("\n\t\tWhich questionID do you want to delete?")
+   print(MAGENTA, "\n\t\tWhich questionID do you want to delete?")
    showQuestions()
-   questionID = int(input("\n\t\tDelete question (by questionID) [Type 0 to cancel]: "))
+   print(RED)
+   questionID = int(input("\t\tDelete question (by questionID) [Type 0 to cancel]: "))
    if verifyCancel(questionID) == 0: return
    db.deleteQuestion(questionID)
    db.checkIDs("choiceID", "ChoiceItem")
 
 def changeChoice():
-    questionID = int(input("\n\t\tQuestion ID [Type 0 to cancel]: "))
+    print(RED, "\n\t\tWhich choiceID do you want to delete?")
+    print(YELLOW)
+    questionID = int(input("\t\tQuestion ID [Type 0 to cancel]: "))
     if verifyCancel(questionID) == 0: return
     choiceID = int(input("\t\tChoice ID [Type 0 to cancel]: "))
     if verifyCancel(choiceID) == 0: return
@@ -253,16 +264,25 @@ def showAll():
     delay(const)
     questions = db.getAllFromTable("QuestionItem")
     choices = db.getAllFromTable("ChoiceItem")
-    print("\n\t\tQuestions")
-    for question in questions:
+    i = 0
+    print(GREEN, "\n\t\tQuestions")
+    for index in range(0, len(questions)):
         delay(const)
-        print("\t\t", question)
+        if i >= len(ALL_COLORS):
+            i = 0
+        print(ALL_COLORS[i], "\t\t", questions[index])
+        i+=1
     print("\n\t\tChoices")
-    for choice in choices:
+    i = 0
+    for index in range(0, len(choices)):
         delay(const)
-        print("\t\t", choice)
+        if i >= len(ALL_COLORS):
+            i = 0
+        print(ALL_COLORS[i], "\t\t", choices[index])
+        i+=1
         
 while True:
+    init(wrap=True)
     choices = ["Create Question and 4 Choices",
                "Delete Choice",
                "Delete Question",
@@ -270,10 +290,11 @@ while True:
                "Show Questions",
                "Show All",
                "Exit"]
-    print("\n\tChoices: \n")
+    print(YELLOW + "\n\tChoices: \n")
     for index in range(0, len(choices)):
-        print("\t\t", index+1, ".) ", choices[index], sep="")
-    select = input("\n\tSELECT [1-{0}]: ".format(len(choices)))
+        print(GREEN, "\t\t", index+1, ".) ", choices[index], sep="")
+    print(CYAN)
+    select = input("\tSELECT [1-{0}]: ".format(len(choices)))
     if select == "1":
         setItem()
     elif select == "2":
@@ -288,5 +309,6 @@ while True:
         showAll()
     elif select == "7":
         break
-    input("\n\t\tPress any key to continue...")
+    print(BLUE)
+    input("\t\tPress any key to continue...")
     system("cls")
