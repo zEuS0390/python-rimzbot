@@ -59,6 +59,7 @@ class master(RIMZDB):
                     """
         authorIDs = self.queryExecute(queryDesc, fetchAll=True)
         authorIDs = [authorID[0] for index, authorID in enumerate(authorIDs)]
+        print(authorIDs)
         return authorIDs
 
     # Gets the master name of the specified master through authorID

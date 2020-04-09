@@ -19,6 +19,15 @@ create_choice_table =  """
                             );
                        """
 
+create_master_table = """
+                          CREATE TABLE IF NOT EXISTS master (
+                              masterID integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+                              authorID text NOT NULL,
+                              masterName text,
+                              score real
+                          );
+                      """
+
 class importItems:
 
     def __init__(self, dbFile):
@@ -26,6 +35,7 @@ class importItems:
 
     def importCSV(self, csvFile):
         self.verify = True
+        self.createMasterTable()
         self.createQnATables()
         self.parseCSVFile(csvFile)
         if not self.verify:
@@ -42,6 +52,14 @@ class importItems:
         except sqlite3.Error as e:
             print("createConnection: ", e)
         return conn
+
+    def createMasterTable(self):
+        try:
+            time.sleep(const)
+            print("Created master table")
+            self.db.execute(create_master_table)
+        except sqlite3.Error as e:
+            print("createQnATables: ", e)
 
     def createQnATables(self):
         try:
