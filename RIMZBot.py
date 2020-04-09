@@ -133,7 +133,7 @@ class RIMZBot(Client):
         else:
             points = master.getScore(self.authorID)
             master.insertScore(self.authorID, -1)
-            self.sendMessage("Points: {0} - 1.0\n{0}'s answer is wrong! The correct answer is {1}.".format(points, messenger, trivia.getCorrectAnswer()))
+            self.sendMessage("Points: {0} - 1.0\n{1}'s answer is wrong! The correct answer is {2}.".format(points, messenger, trivia.getCorrectAnswer()))
         trivia.itemNumber += 1
         trivia.removeQuestionItem()
 
@@ -216,7 +216,7 @@ class RIMZBot(Client):
     def onMessage(self, author_id, message_object, thread_id, thread_type, **kwargs):
         self.authorID = author_id
         message = message_object
-        if thread_id == THREADID and self.authorID == self.uid:
+        if thread_id == THREADID and self.authorID != self.uid:
             if self.validateMessage("!math", message):
                 self.mathExpression(message)
             elif self.validateMessage("!combinations", message):
@@ -242,15 +242,12 @@ class RIMZBot(Client):
                 self.sendMessage("RIMZBot is now offline.")
                 self.stopListening()
                 self.logout()
-            else:
-                thread = Thread(target=self.playSpeech, args=(message,))
-                thread.start()
             self.markAsDelivered(THREADID, message.uid)
             self.markAsRead(THREADID)
 
 if __name__=="__main__":
     system("color a")
-    email = input("Email Address: ")
+    email = input("Email Address (User Name or Contact Number): ")
     password = getpass()
     client = RIMZBot(email, password)
     client.sendMessage("RIMZBot is now online.")
