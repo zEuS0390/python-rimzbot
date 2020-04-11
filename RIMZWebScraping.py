@@ -1,12 +1,12 @@
 from urllib.request import urlopen
-from bs4 import BeautifulSoup as BS
+from bs4 import BeautifulSoup
 from datetime import datetime
 
 # Declaration of constants and instances
 url = "https://news.abs-cbn.com/"
 response = urlopen(url)
 raw_html = response.read()
-page_soup = BS(raw_html, "html.parser")
+page_soup = BeautifulSoup(raw_html, "html.parser")
 containers = page_soup.findAll("div", {"class": ["tab-content", "w-tab-content"]})
 
 # Function to get the latest headlines of the news website (ABS-CBN)
