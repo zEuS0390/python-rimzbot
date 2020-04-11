@@ -1,5 +1,5 @@
 from fbchat import Client
-from fbchat.models import Message, ThreadType
+from fbchat.models import Message, ThreadType, MessageReaction
 from getpass import getpass
 from RIMZTrivia import trivia as tr
 from RIMZMasters import master as m
@@ -28,6 +28,15 @@ from threading import Thread
 # Declaration of constants and instances
 THREADID = "3241873795826525"
 THREADTYPE = ThreadType.GROUP
+listOfInsults = ["Gago", "gago", "GAGO", "Gagu", "gagu", "GAGU",
+                 "Pakyu", "pakyu", "PAKYU",
+                 "Tangina mo", "tangina mo", "TANGINA MO", "Putangina mo", "putangina mo", "PUTANINA MO",
+                 "Tangina mu", "tangina mu", "TANGINA MU", "Putangina mu", "putangina mu", "PUTANINA MU",
+                 "Animal", "animal", "ANIMAL", "Hayop", "hayop", "HAYOP",
+                 "Hayup", "hayup", "HAYUP"]
+listOfCompliments = ["Love you", "love you", "LOVE YOU", "Labyu", "labyu", "LABYU",
+                     "Cute", "cute", "CUTE", "Beautiful", "beautiful", "BEAUTIFUL",
+                     "Gorgeous", "gorgeous", "GORGEOUS"]
 commands = ["!commands",
             "!math <expression>",
             "!setname <name>",
@@ -212,6 +221,15 @@ class RIMZBot(Client):
             message += "{0}.) ".format(index+1) + article + " [" + articleTime + "]\n"
         self.sendMessage(message)
 
+    # A method to response to a message
+    def response(self, message):
+        messageID = message.uid
+        message = self.fetchMessage(message)
+        if message in listOfInsults:
+            self.reactToMessage(messageID, MessageReaction.SAD)
+        elif message in listOfCompliments:
+            self.reactToMessage(messageID, MessageReaction.LOVE)
+
     # A method called when the client is listening and aomebody sends a message
     def onMessage(self, author_id, message_object, thread_id, thread_type, **kwargs):
         self.authorID = author_id
@@ -242,6 +260,8 @@ class RIMZBot(Client):
                 self.sendMessage("RIMZBot is now offline.")
                 self.stopListening()
                 self.logout()
+            elif self.validateMessage("!talk", message):
+                self.response(message)
             self.markAsDelivered(THREADID, message.uid)
             self.markAsRead(THREADID)
 
