@@ -1,6 +1,0 @@
-fbchat
-sympy
-python-vlc
-gTTS
-bs4
-colorama
