@@ -15,12 +15,15 @@ class trivia(RIMZDB):
         self.questionItems = {}
         questions = self.getAllFromTable(questionTableName)
         choices = self.getAllFromTable(choiceTableName)
-        for question in questions:
-            temp = []
-            for choice in choices:
-                if question[0] == choice[1]:
-                    temp.append(choice[2])
-                    self.questionItems[question[0]] = (question[1], temp, question[2])
+        try:
+            for question in questions:
+                temp = []
+                for choice in choices:
+                    if question[0] == choice[1]:
+                        temp.append(choice[2])
+                        self.questionItems[question[0]] = (question[1], temp, question[2])
+        except TypeError:
+            return
 
     def questionItemLength(self):
         return len(self.questionItems)
