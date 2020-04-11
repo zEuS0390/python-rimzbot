@@ -45,6 +45,7 @@ commands = ["!commands",
             "!answer <answer>",
             "!quittrivia",
             "!latestnews",
+            "!talk <message>",
             "!speak <message>",
             "!exit"]
 trivia = tr("RIMZDB.db")
@@ -251,6 +252,8 @@ class RIMZBot(Client):
                 self.quitTrivia()
             elif "!latestnews" == message.text:
                 self.latestNews()
+            elif self.validateMessage("!talk", message):
+                self.response(message)
             elif self.validateMessage("!speak", message):
                 thread = Thread(target=self.playSpeech, args=(message, True))
                 thread.start()
@@ -260,8 +263,6 @@ class RIMZBot(Client):
                 self.sendMessage("RIMZBot is now offline.")
                 self.stopListening()
                 self.logout()
-            elif self.validateMessage("!talk", message):
-                self.response(message)
             self.markAsDelivered(THREADID, message.uid)
             self.markAsRead(THREADID)
 
