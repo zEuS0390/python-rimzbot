@@ -6,7 +6,9 @@ class RIMZDB:
     # Constructor with 1 parameter for the filename of the database
     def __init__(self, dbFile):
         self.db = self.createConnection(dbFile)
-
+        self.qncTables()
+        self.masterTable()
+        
     # Destructor deletes the database
     def __del__(self):
         del self.db
@@ -74,17 +76,49 @@ class RIMZDB:
         else:
             return False
 
+    # Creates QuestionItem and ChoiceItem tables if they don't exist
+    def qncTables(self):
+        QuestionItemDesc = """
+                               CREATE TABLE IF NOT EXISTS QuestionItem (
+                                   questionID integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+                                   questionDesc text NOT NULL,
+                                   correctChoiceID integer
+                               );
+                           """
+        ChoiceItemDesc =  """
+                              CREATE TABLE IF NOT EXISTS ChoiceItem (
+                                  choiceID integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+                                  questionID integer NOT NULL,
+                                  choiceDesc text NOT NULL,
+                                  FOREIGN KEY(questionID) REFERENCES QuestionItem(questionID) 
+                              );
+                          """
+        self.createTable(QuestionItemDesc)
+        self.createTable(ChoiceItemDesc)
+
+    # Creates master table if it does not exist
+    def masterTable(self):
+        masterDesc = """
+                         CREATE TABLE IF NOT EXISTS master (
+                             masterID integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+                             authorID text NOT NULL,
+                             masterName text,
+                             score real
+                         );
+                     """
+        self.createTable(masterDesc)
+
     # Inserts a question to the questionItem table
     def insertQuestion(self, questionDesc):
         if self.checkIfExists("questionDesc", "QuestionItem", args={"questionDesc":questionDesc,}):
             print("insertQuestion: Question already exists")
             return False
         queryDesc = """
-                    INSERT OR REPLACE INTO QuestionItem(
-                        questionDesc
-                    ) VALUES (
-                        ?
-                    );
+                        INSERT OR REPLACE INTO QuestionItem(
+                            questionDesc
+                        ) VALUES (
+                            ?
+                        );
                     """
         self.queryExecute(queryDesc, commit=True, args=(questionDesc,))
         return True
@@ -117,29 +151,45 @@ class RIMZDB:
     # Change the description of the choice in the choiceItem table for a question in the questionItem table
     def changeChoice(self, choiceDesc, questionID, choiceID):
         queryDesc = """
-                    UPDATE ChoiceItem
-                    SET choiceDesc = ?
-                    WHERE questionID = ?
-                    AND choiceID = ?
-                """
+                        UPDATE ChoiceItem
+                        SET choiceDesc = ?
+                        WHERE questionID = ?
+                        AND choiceID = ?
+                    """
         self.queryExecute(queryDesc, commit=True, args=(choiceDesc, questionID, choiceID))
 
     # Gets all fields in the table of the database
     def getAllFromTable(self, tableName):
-        queryDesc = "SELECT * FROM {0}".format(tableName)
+        queryDesc = """
+                        SELECT *
+                        FROM {0}
+                    """.format(tableName)
         return self.queryExecute(queryDesc, fetchAll=True)
 
     # Deletes a choice from the choiceItem table of the question in the questionItem table
     def deleteChoice(self, questionID, choiceID):
-        queryDesc = "DELETE FROM ChoiceItem WHERE questionID = ? AND choiceID = ?"
+        queryDesc = """
+                        DELETE
+                        FROM ChoiceItem
+                        WHERE questionID = ?
+                        AND choiceID = ?
+                    """
         self.queryExecute(queryDesc, commit=True, args=(questionID, choiceID))
 
     # Deletes question in the questionItem table using questionID
     def deleteQuestion(self, questionID):
-        queryDesc = "DELETE FROM QuestionItem WHERE questionID = ?"
+        queryDesc = """
+                        DELETE
+                        FROM QuestionItem
+                        WHERE questionID = ?
+                    """
         self.queryExecute(queryDesc, commit=True, args=(questionID,))
         print("deleteQuestion: Question ID:", questionID, "is deleted.")
-        queryChoiceID = "SELECT choiceID FROM ChoiceItem WHERE questionID = ?"
+        queryChoiceID = """
+                            SELECT choiceID
+                            FROM ChoiceItem
+                            WHERE questionID = ?
+                        """
         choicesID = [ID[0] for ID in self.queryExecute(queryChoiceID, fetchAll=True, args=(questionID,))]
         for choiceID in choicesID:
             self.deleteChoice(questionID, choiceID)
@@ -149,19 +199,30 @@ class RIMZDB:
     # IF the length of the fields in table is 0, then
     # reset the autoincrement to 1
     def checkIDs(self, idName, tableName):
-        queryDesc = "SELECT {0} FROM {1}".format(idName, tableName)
+        queryDesc = """
+                        SELECT {0}
+                        FROM {1}
+                    """.format(idName, tableName)
         results = [ID[0] for ID in self.queryExecute(queryDesc, fetchAll=True)]
         if len(results) == 0:
             self.resetID(tableName)
 
     # Gets the questionID of the latest question
     def getID(self, questionDesc):
-        queryDesc = "SELECT questionID FROM QuestionItem WHERE questionDesc = ?"
+        queryDesc = """
+                        SELECT questionID
+                        FROM QuestionItem
+                        WHERE questionDesc = ?
+                    """
         ID = self.queryExecute(queryDesc, fetchOne=True, args=(questionDesc,))[0]
         return ID
 
     # Resets the autoincrement of a table
     def resetID(self, tableName):
-        queryDesc = "UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME = ?"
+        queryDesc = """
+                        UPDATE SQLITE_SEQUENCE
+                        SET SEQ=0
+                        WHERE NAME = ?
+                    """
         self.queryExecute(queryDesc, commit=True, args=(tableName,))
         print("resetID: reset ID")
