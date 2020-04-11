@@ -34,7 +34,8 @@ listOfInsults = ["Gago", "gago", "GAGO", "Gagu", "gagu", "GAGU",
                  "Hayup", "hayup", "HAYUP"]
 listOfCompliments = ["Love you", "love you", "LOVE YOU", "Labyu", "labyu", "LABYU",
                      "Cute", "cute", "CUTE", "Beautiful", "beautiful", "BEAUTIFUL",
-                     "Gorgeous", "gorgeous", "GORGEOUS"]
+                     "Gorgeous", "gorgeous", "GORGEOUS",
+                     "Pogi", "pogi", "POGI"]
 commands = ["!commands",
             "!math <expression>",
             "!setname <name>",
@@ -221,32 +222,33 @@ class RIMZBot(Client):
         self.authorID = author_id
         message = message_object
         if thread_id == THREADID and self.authorID != self.uid:
-            if self.validateMessage("!math", message):
-                self.mathExpression(message)
-            elif self.validateMessage("!combinations", message):
-                self.getCombinations(message)
-            elif self.validateMessage("!setname", message):
-                self.setName(message)
-            elif "!name" == message.text:
-                self.masterName(message)
-            elif "!trivia" == message.text:
-                self.startTrivia()
-            elif self.validateMessage("!answer", message):
-                self.answerTrivia(message)
-            elif "!quittrivia" == message.text:
-                self.quitTrivia()
-            elif "!latestnews" == message.text:
-                self.latestNews()
-            elif self.validateMessage("!talk", message):
-                self.response(message)
-            elif self.validateMessage("!speak", message):
-                thread = Thread(target=self.playSpeech, args=(message))
-                thread.start()
-            elif "!commands" == message.text:
-                self.displayCommands()
-            elif "!exit" == message.text:
-                self.sendMessage("RIMZBot is now offline.")
-                self.stopListening()
+            if message.text is not None:
+                if self.validateMessage("!math", message):
+                    self.mathExpression(message)
+                elif self.validateMessage("!combinations", message):
+                    self.getCombinations(message)
+                elif self.validateMessage("!setname", message):
+                    self.setName(message)
+                elif "!name" == message.text:
+                    self.masterName(message)
+                elif "!trivia" == message.text:
+                    self.startTrivia()
+                elif self.validateMessage("!answer", message):
+                    self.answerTrivia(message)
+                elif "!quittrivia" == message.text:
+                    self.quitTrivia()
+                elif "!latestnews" == message.text:
+                    self.latestNews()
+                elif self.validateMessage("!talk", message):
+                    self.response(message)
+                elif self.validateMessage("!speak", message):
+                    thread = Thread(target=self.playSpeech, args=(message))
+                    thread.start()
+                elif "!commands" == message.text:
+                    self.displayCommands()
+                elif "!exit" == message.text:
+                    self.sendMessage("RIMZBot is now offline.")
+                    self.stopListening()
             self.markAsDelivered(THREADID, message.uid)
             self.markAsRead(THREADID)
 
