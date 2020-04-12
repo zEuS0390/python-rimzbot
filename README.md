@@ -10,4 +10,4 @@ $ pip install -r packages-prereq.txt
 ```
 
 ## Execute the Bot
-Run **__RIMZBot.py__** and use the Facebook account which contains email and password to be used as a host for the bot.
+Run **___RIMZ_bot.py__** and use the Facebook account which contains email and password to be used as a host for the bot.
